@@ -1,9 +1,15 @@
 import * as React from "react";
-import { StyleSheet, View, Text, FlatList } from "react-native";
+import { StyleSheet, View, Pressable, FlatList, Text } from "react-native";
 import ChatRoomItem from "../components/ChatRoomItem";
 import chatRoomsData from "../assets/dummy-data/ChatRooms";
 
-export default () => {
+// ? for LogOut usiing AWS Amplify ㅎㅎ
+import { Auth } from "aws-amplify";
+const HomeScreen = () => {
+  // ? 로그아웃 함수
+  const logOut = () => {
+    Auth.signOut();
+  };
   return (
     <View style={styles.page}>
       <FlatList
@@ -13,10 +19,24 @@ export default () => {
         // ? 아래와 같은 표현식도 가능하다!
         // renderItem={({ item: chatRoom }) => <ChatRoomItem chatRoom={chatRoom} />}
       />
+      {/* 로그아웃 버튼 */}
+      <Pressable style={styles.logOutContainer} onPress={logOut}>
+        <Text>로그아웃</Text>
+      </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   page: {},
+  logOutContainer: {
+    backgroundColor: "skyblue",
+    height: 30,
+    width: "80%",
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
+
+export default HomeScreen;

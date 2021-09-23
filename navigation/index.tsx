@@ -1,9 +1,4 @@
-/**
- * If you are not familiar with React Navigation, refer to the "Fundamentals" guide:
- * https://reactnavigation.org/docs/getting-started
- *
- */
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Feather } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   NavigationContainer,
@@ -12,23 +7,27 @@ import {
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
-import { ColorSchemeName, Pressable } from "react-native";
-
+import {
+  ColorSchemeName,
+  Pressable,
+  View,
+  Text,
+  Image,
+  useWindowDimensions,
+} from "react-native";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
-import ModalScreen from "../screens/ModalScreen";
-import NotFoundScreen from "../screens/NotFoundScreen";
 
 import HomeScreen from "../screens/HomeScreen";
 import ChatRoomScreen from "../screens/ChatRoomScreen";
-
-import TabTwoScreen from "../screens/TabTwoScreen";
+import UsersScreen from "../screens/UsersScreen";
 import {
   RootStackParamList,
   RootTabParamList,
   RootTabScreenProps,
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
+import { useNavigation } from "@react-navigation/core";
 
 export default function Navigation({
   colorScheme,
@@ -45,34 +44,81 @@ export default function Navigation({
   );
 }
 
-/**
- * A root stack navigator is often used for displaying modals on top of all other content.
- * https://reactnavigation.org/docs/modal
- */
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
 function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: true }}>
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen
+        name="HomeScreen"
+        component={HomeScreen}
+        options={{ headerTitle: HomeHeader }}
+      />
       <Stack.Screen
         name="ChatRoomScreen"
         component={ChatRoomScreen}
         options={{ headerShown: true }}
       />
+      <Stack.Screen
+        name="UsersScreen"
+        component={UsersScreen}
+        options={{
+          title: "Users",
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
-/**
- * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
- * https://reactnavigation.org/docs/bottom-tab-navigator
- */
-const BottomTab = createBottomTabNavigator<RootTabParamList>();
+const HomeHeader = (props) => {
+  const { width } = useWindowDimensions();
+  const navigation = useNavigation();
 
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: 10,
+      }}
+    >
+      <Image
+        source={{
+          uri: "https://upload.wikimedia.org/wikipedia/en/thumb/0/0a/Hanyang_University_new_UI.svg/1200px-Hanyang_University_new_UI.svg.png",
+        }}
+        style={{ width: 30, height: 30, borderRadius: 30 }}
+      />
+      <Text
+        style={{
+          flex: 1,
+          textAlign: "center",
+          marginLeft: 50,
+          fontWeight: "bold",
+        }}
+      >
+        {props.children}
+      </Text>
+      <Feather
+        name="camera"
+        size={24}
+        color={"black"}
+        style={{ marginHorizontal: 10 }}
+      />
+      <Pressable onPress={() => navigation.navigate("UsersScreen")}>
+        <Feather
+          name="edit-2"
+          size={24}
+          color={"black"}
+          style={{ marginHorizontal: 10 }}
+        />
+      </Pressable>
+    </View>
+  );
+};
+
+const BottomTab = createBottomTabNavigator<RootTabParamList>();
 function BottomTabNavigator() {
   const colorScheme = useColorScheme();
-
   return (
     <BottomTab.Navigator
       initialRouteName="TabOne"
