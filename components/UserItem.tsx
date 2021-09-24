@@ -6,16 +6,15 @@ import { ChatRoom, User, ChatRoomUser } from "../src/models";
 
 const UserItem = ({ user }) => {
   const navigation = useNavigation();
+
   const onPress = async () => {
     // ? Chat Room 만들기.
     const newChatRoom = await DataStore.save(new ChatRoom({ newMessages: 0 }));
 
     // ? Authenticated User 와 Chat Room 을 연결하기.
     const authUser = await Auth.currentAuthenticatedUser();
-    console.log(authUser);
     // DataStore 의 User 모델에서 authUser.attributes.sub 값과 일치하는 값만 가져온다.
     const dbUser = await DataStore.query(User, authUser.attributes.sub);
-    console.log(dbUser);
     await DataStore.save(
       new ChatRoomUser({
         user: dbUser,
@@ -33,6 +32,10 @@ const UserItem = ({ user }) => {
     );
 
     navigation.navigate("ChatRoomScreen", { id: newChatRoom.id });
+
+    // TODO: If tere is already to chat room between these 2 users,
+    // TODO: then redirect to the existing chat room.
+    // TODO: Otherwise, create a new chatroom with these users.
   };
 
   return (
