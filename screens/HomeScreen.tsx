@@ -11,6 +11,7 @@ const HomeScreen = () => {
   const [chatRooms, setChatRooms] = useState([]);
 
   useEffect(() => {
+    // ? 채팅방들 가져오기.
     const fetchChatRooms = async () => {
       const userData = await Auth.currentAuthenticatedUser();
 
@@ -19,7 +20,6 @@ const HomeScreen = () => {
           (ChatRoomUser) => ChatRoomUser.user.id === userData.attributes.sub
         )
         .map((ChatRoomUser) => ChatRoomUser.chatroom);
-      // console.log("챗", chatRooms);
 
       setChatRooms(chatRooms);
     };
@@ -28,10 +28,11 @@ const HomeScreen = () => {
     return () => {};
   }, []);
 
-  // ? 로그아웃 함수
+  // ? 로그아웃 기능.
   const logOut = () => {
     Auth.signOut();
   };
+
   return (
     <View style={styles.page}>
       <FlatList

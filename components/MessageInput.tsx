@@ -15,13 +15,35 @@ import {
   AntDesign,
   Ionicons,
 } from "@expo/vector-icons";
+import { DataStore } from "@aws-amplify/datastore";
+import { Message, ChatRoom } from "../src/models";
+import Auth from "@aws-amplify/auth";
 
-export default () => {
+const MessageInput = ({ chatRoom }) => {
   const [message, setMessage] = useState("");
-  //   메시지 보내는 함수
-  const sendMessage = () => {
-    console.log("sending:", message);
+
+  // ? 메시지 보내는 함수
+  const sendMessage = async () => {
+    const user = await Auth.currentAuthenticatedUser();
+    const newMessage = await DataStore.save(
+      new Message({
+        content: message,
+        userID: user.attributes.sub,
+        chatroomID: chatRoom.id,
+      })
+    );
+    updateLastMessage(newMessage);
     setMessage("");
+    console.log("sending:", message);
+  };
+
+  const updateLastMessage = async (newMessage) => {
+    // ? Data in DataStore is NOT Mutable. 그래서 cpoyOf 쓰는 거임!
+    DataStore.save(
+      ChatRoom.copyOf(chatRoom, (updatedChatRoom) => {
+        updatedChatRoom.LastMessage = newMessage;
+      })
+    );
   };
 
   //
@@ -117,3 +139,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+export default MessageInput;

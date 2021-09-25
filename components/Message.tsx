@@ -1,9 +1,33 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { DataStore } from "@aws-amplify/datastore";
+import { User } from "../src/models";
+import Auth from "@aws-amplify/auth";
 
 export default ({ message }) => {
-  const myID = "u1";
-  const isMe = message.user.id === myID;
+  const [user, setUser] = useState(undefined);
+  const [isMe, setIsMe] = useState(false);
+
+  useEffect(() => {
+    // ? 메시지의 userID 값을 불러옴.
+    DataStore.query(User, message.userID).then(setUser);
+  }, []);
+
+  useEffect(() => {
+    const checkIfMe = async () => {
+      if (!user) {
+        return;
+      }
+      const authUser = await Auth.currentAuthenticatedUser();
+      // ? 내 계정의 id 값과 같으면, 이 메시지는 나의 메시지임.
+      setIsMe(user.id === authUser.attributes.sub);
+    };
+    checkIfMe();
+  }, [user]);
+
+  if (!user) {
+    return <ActivityIndicator />;
+  }
 
   return (
     <View

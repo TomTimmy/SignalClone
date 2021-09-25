@@ -13,7 +13,7 @@ const UserItem = ({ user }) => {
 
     // ? Authenticated User 와 Chat Room 을 연결하기.
     const authUser = await Auth.currentAuthenticatedUser();
-    // DataStore 의 User 모델에서 authUser.attributes.sub 값과 일치하는 값만 가져온다.
+    // ? DataStore 의 User 모델에서 authUser.attributes.sub 값과 일치하는 값만 가져온다.
     const dbUser = await DataStore.query(User, authUser.attributes.sub);
     await DataStore.save(
       new ChatRoomUser({
@@ -31,6 +31,7 @@ const UserItem = ({ user }) => {
       })
     );
 
+    // ! 계정의 imageUri 가 비워져 있으면, 왠진 모르겠지만, 새 채팅방으로 이동 하지 않는다.
     navigation.navigate("ChatRoomScreen", { id: newChatRoom.id });
 
     // TODO: If tere is already to chat room between these 2 users,

@@ -10,13 +10,15 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
-import { ChatRoomUser, User } from "../src/models";
+import { ChatRoomUser, User, Message } from "../src/models";
 
 export default ({ chatRoom }) => {
-  const [users, setUsers] = useState([]); // ? All users in this chatRoom
+  // const [users, setUsers] = useState([]); // ? All users in this chatRoom
   const [user, setUser] = useState(null); // ? The display user
+  const [lastMessage, setLastMessage] = useState(undefined); // ? The display user
 
   const navigation = useNavigation();
+  console.log(chatRoom);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -27,7 +29,9 @@ export default ({ chatRoom }) => {
         .filter((ChatRoomUser) => ChatRoomUser.chatroom.id === chatRoom.id)
         .map((ChatRoomUser) => ChatRoomUser.user);
 
-      setUsers(fetchedUsers);
+      //? All users in this chatRoom
+      // setUsers(fetchedUsers);
+
       // ? Display user 설정.
       // ? 내가 아닌 다른 유저를 Display 한다. (나 == authUser)
       const authUser = await Auth.currentAuthenticatedUser();
@@ -36,6 +40,15 @@ export default ({ chatRoom }) => {
       );
     };
     fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    if (!chatRoom.chatRoomLastMessageId) {
+      return;
+    }
+    DataStore.query(Message, chatRoom.chatRoomLastMessageId).then(
+      setLastMessage
+    );
   }, []);
 
   const onPress = () => {
@@ -68,11 +81,11 @@ export default ({ chatRoom }) => {
       <View style={styles.rightContainer}>
         <View style={styles.nameTimeRow}>
           <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.text}>{chatRoom.lastMessage?.createdAt}</Text>
+          <Text style={styles.text}>{lastMessage?.createdAt}</Text>
         </View>
         <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">
           {/* //? ellipsizeMode => ...생략점 위치 선택가능! head or tail. */}
-          {chatRoom.lastMessage?.content}
+          {lastMessage?.content}
         </Text>
       </View>
     </Pressable>

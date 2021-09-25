@@ -6,7 +6,7 @@ import {
   DarkTheme,
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import {
   ColorSchemeName,
   Pressable,
@@ -14,10 +14,10 @@ import {
   Text,
   Image,
   useWindowDimensions,
+  ActivityIndicator,
 } from "react-native";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
-
 import HomeScreen from "../screens/HomeScreen";
 import ChatRoomScreen from "../screens/ChatRoomScreen";
 import UsersScreen from "../screens/UsersScreen";
@@ -28,6 +28,9 @@ import {
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import { useNavigation } from "@react-navigation/core";
+import Auth from "@aws-amplify/auth";
+import { DataStore } from "@aws-amplify/datastore";
+import { User } from "../src/models";
 
 export default function Navigation({
   colorScheme,
@@ -71,7 +74,29 @@ function RootNavigator() {
 
 const HomeHeader = (props) => {
   const { width } = useWindowDimensions();
+  const [authUser, setAuthUser] = useState(undefined);
+  const [userImgUri, setUserImgUri] = useState("");
   const navigation = useNavigation();
+
+  // ? DataStore 에서, authUser 의 User 데이터 가져오기.
+  useEffect(() => {
+    const fetchAuthUser = async () => {
+      await Auth.currentAuthenticatedUser().then(setAuthUser);
+    };
+    fetchAuthUser();
+  }, []);
+
+  if (!authUser) {
+    return <ActivityIndicator />;
+  }
+
+  // ? imgaeUri 가져오기.
+  const fetchImageUri = async () => {
+    const user = await DataStore.query(User, authUser.attributes.sub);
+    setUserImgUri(user?.imageUri);
+    // console.log("여기야 ->", userImgUri);
+  };
+  fetchImageUri();
 
   return (
     <View
@@ -84,10 +109,15 @@ const HomeHeader = (props) => {
     >
       <Image
         source={{
-          uri: "https://upload.wikimedia.org/wikipedia/en/thumb/0/0a/Hanyang_University_new_UI.svg/1200px-Hanyang_University_new_UI.svg.png",
+          uri: userImgUri,
         }}
         style={{ width: 30, height: 30, borderRadius: 30 }}
       />
+      <View style={{ flex: 1 }}>
+        <Text ellipsizeMode="tail" numberOfLines={1}>
+          {authUser.attributes.email}
+        </Text>
+      </View>
       <Text
         style={{
           flex: 1,
@@ -96,6 +126,7 @@ const HomeHeader = (props) => {
           fontWeight: "bold",
         }}
       >
+        {/* //? 스크린의 이름 출력. */}
         {props.children}
       </Text>
       <Feather
@@ -116,57 +147,54 @@ const HomeHeader = (props) => {
   );
 };
 
-const BottomTab = createBottomTabNavigator<RootTabParamList>();
-function BottomTabNavigator() {
-  const colorScheme = useColorScheme();
-  return (
-    <BottomTab.Navigator
-      initialRouteName="TabOne"
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-      }}
-    >
-      <BottomTab.Screen
-        name="TabOne"
-        component={HomeScreen}
-        options={({ navigation }: RootTabScreenProps<"TabOne">) => ({
-          title: "채팅목록",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate("Modal")}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}
-            >
-              <FontAwesome
-                name="info-circle"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-          ),
-        })}
-      />
-      <BottomTab.Screen
-        name="TabTwo"
-        component={ChatRoomScreen}
-        options={{
-          title: "채팅방",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-        }}
-      />
-    </BottomTab.Navigator>
-  );
-}
+// const BottomTab = createBottomTabNavigator<RootTabParamList>();
+// function BottomTabNavigator() {
+//   const colorScheme = useColorScheme();
+//   return (
+//     <BottomTab.Navigator
+//       initialRouteName="TabOne"
+//       screenOptions={{
+//         tabBarActiveTintColor: Colors[colorScheme].tint,
+//       }}
+//     >
+//       <BottomTab.Screen
+//         name="TabOne"
+//         component={HomeScreen}
+//         options={({ navigation }: RootTabScreenProps<"TabOne">) => ({
+//           title: "채팅목록",
+//           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+//           headerRight: () => (
+//             <Pressable
+//               onPress={() => navigation.navigate("Modal")}
+//               style={({ pressed }) => ({
+//                 opacity: pressed ? 0.5 : 1,
+//               })}
+//             >
+//               <FontAwesome
+//                 name="info-circle"
+//                 size={25}
+//                 color={Colors[colorScheme].text}
+//                 style={{ marginRight: 15 }}
+//               />
+//             </Pressable>
+//           ),
+//         })}
+//       />
+//       <BottomTab.Screen
+//         name="TabTwo"
+//         component={ChatRoomScreen}
+//         options={{
+//           title: "채팅방",
+//           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+//         }}
+//       />
+//     </BottomTab.Navigator>
+//   );
+// }
 
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>["name"];
-  color: string;
-}) {
-  return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
-}
+// function TabBarIcon(props: {
+//   name: React.ComponentProps<typeof FontAwesome>["name"];
+//   color: string;
+// }) {
+//   return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
+// }
