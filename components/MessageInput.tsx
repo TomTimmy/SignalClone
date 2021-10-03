@@ -1,26 +1,14 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import {
-  SimpleLineIcons,
-  Feather,
-  MaterialCommunityIcons,
-  AntDesign,
-  Ionicons,
-} from "@expo/vector-icons";
+import { View, Text, StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform } from "react-native";
+import { SimpleLineIcons, Feather, MaterialCommunityIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import { DataStore } from "@aws-amplify/datastore";
 import { Message, ChatRoom } from "../src/models";
 import Auth from "@aws-amplify/auth";
+import EmojiSelector from "react-native-emoji-selector";
 
 const MessageInput = ({ chatRoom }) => {
   const [message, setMessage] = useState("");
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
   // ? 메시지 보내는 함수
   const sendMessage = async () => {
@@ -33,8 +21,9 @@ const MessageInput = ({ chatRoom }) => {
       })
     );
     updateLastMessage(newMessage);
+
     setMessage("");
-    console.log("sending:", message);
+    setIsEmojiPickerOpen(false);
   };
 
   const updateLastMessage = async (newMessage) => {
@@ -57,17 +46,16 @@ const MessageInput = ({ chatRoom }) => {
   return (
     // ? KeyboardAvoidingView 를 사용해야 키보드가 표출될떄 화면을 안 가린다.. 참조: https://reactnative.dev/docs/keyboardavoidingview
     <KeyboardAvoidingView
+      style={[styles.root, { height: isEmojiPickerOpen ? "50%" : "auto" }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={100}
     >
-      <View style={styles.root}>
+      <View style={styles.row}>
         <View style={styles.inputContainer}>
-          <SimpleLineIcons
-            name="emotsmile"
-            size={24}
-            color="grey"
-            style={styles.icon}
-          />
+          <Pressable onPress={() => setIsEmojiPickerOpen((currentValue) => !currentValue)}>
+            <SimpleLineIcons name="emotsmile" size={24} color="grey" style={styles.icon} />
+          </Pressable>
+
           <TextInput
             style={styles.input}
             value={message}
@@ -77,14 +65,11 @@ const MessageInput = ({ chatRoom }) => {
             autoCorrect={false}
             autoCapitalize="none"
           />
+
           <Feather name="camera" size={24} color="grey" style={styles.icon} />
-          <MaterialCommunityIcons
-            name="microphone"
-            size={24}
-            color="grey"
-            style={styles.icon}
-          />
+          <MaterialCommunityIcons name="microphone" size={24} color="grey" style={styles.icon} />
         </View>
+
         {/* // ? Pressable 은 View 와 대치 가능하다. 오직, onPress 유무 차이만 있음! */}
         <Pressable
           style={[
@@ -95,22 +80,28 @@ const MessageInput = ({ chatRoom }) => {
           onPress={onPress}
         >
           {/* 메시지 보내기 버튼 */}
-          <Feather
-            name="arrow-up"
-            size={30}
-            color={message ? "blue" : "grey"}
-            style={styles.icon}
-          />
+          <Feather name="arrow-up" size={30} color={message ? "blue" : "grey"} style={styles.icon} />
         </Pressable>
       </View>
+
+      {/* 이모지 셀렉터 패키지. */}
+      {isEmojiPickerOpen && (
+        <EmojiSelector
+          onEmojiSelected={(emoji) => setMessage((currentMessage) => currentMessage + emoji)}
+          columns={8}
+        />
+      )}
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
-    flexDirection: "row",
     padding: 10,
+    height: "50%",
+  },
+  row: {
+    flexDirection: "row",
   },
   inputContainer: {
     backgroundColor: "#f2f2f2",
