@@ -31,6 +31,7 @@ import { useNavigation } from "@react-navigation/core";
 import Auth from "@aws-amplify/auth";
 import { DataStore } from "@aws-amplify/datastore";
 import { User } from "../src/models";
+import ChatRoomHeader from "./ChatRoomHeader";
 
 export default function Navigation({
   colorScheme,
@@ -59,7 +60,11 @@ function RootNavigator() {
       <Stack.Screen
         name="ChatRoomScreen"
         component={ChatRoomScreen}
-        options={{ headerShown: true }}
+        options={({ route }) => ({
+          //? ChatRoomHeader 컴포넌트에게 ChatRoomScreen 의 route 를 props 로 전달 할 수 있다!
+          headerTitle: () => <ChatRoomHeader id={route.params?.id} />,
+          headerBackTitleVisible: false,
+        })}
       />
       <Stack.Screen
         name="UsersScreen"
@@ -146,55 +151,3 @@ const HomeHeader = (props) => {
     </View>
   );
 };
-
-// const BottomTab = createBottomTabNavigator<RootTabParamList>();
-// function BottomTabNavigator() {
-//   const colorScheme = useColorScheme();
-//   return (
-//     <BottomTab.Navigator
-//       initialRouteName="TabOne"
-//       screenOptions={{
-//         tabBarActiveTintColor: Colors[colorScheme].tint,
-//       }}
-//     >
-//       <BottomTab.Screen
-//         name="TabOne"
-//         component={HomeScreen}
-//         options={({ navigation }: RootTabScreenProps<"TabOne">) => ({
-//           title: "채팅목록",
-//           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-//           headerRight: () => (
-//             <Pressable
-//               onPress={() => navigation.navigate("Modal")}
-//               style={({ pressed }) => ({
-//                 opacity: pressed ? 0.5 : 1,
-//               })}
-//             >
-//               <FontAwesome
-//                 name="info-circle"
-//                 size={25}
-//                 color={Colors[colorScheme].text}
-//                 style={{ marginRight: 15 }}
-//               />
-//             </Pressable>
-//           ),
-//         })}
-//       />
-//       <BottomTab.Screen
-//         name="TabTwo"
-//         component={ChatRoomScreen}
-//         options={{
-//           title: "채팅방",
-//           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-//         }}
-//       />
-//     </BottomTab.Navigator>
-//   );
-// }
-
-// function TabBarIcon(props: {
-//   name: React.ComponentProps<typeof FontAwesome>["name"];
-//   color: string;
-// }) {
-//   return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
-// }

@@ -75,7 +75,7 @@ const MessageInput = ({ chatRoom }) => {
             // ?   onChangeText={(newMessage) => setMessage(newMessage)}
             placeholder="메시지를 입력해주세요!"
             autoCorrect={false}
-            autoCapitalize={false}
+            autoCapitalize="none"
           />
           <Feather name="camera" size={24} color="grey" style={styles.icon} />
           <MaterialCommunityIcons
