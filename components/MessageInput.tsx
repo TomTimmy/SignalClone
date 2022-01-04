@@ -77,6 +77,19 @@ const MessageInput = ({ chatRoom }) => {
     }
   };
 
+  //- Camera Launcher
+  const takePhoto = async () => {
+    // No permissions request is necessary for launching the image library | 이제 permission 안 필요한듯.
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [4, 3],
+    });
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
+
   return (
     // ? KeyboardAvoidingView 를 사용해야 키보드가 표출될떄 화면을 안 가린다.. 참조: https://reactnative.dev/docs/keyboardavoidingview
     <KeyboardAvoidingView
@@ -115,7 +128,9 @@ const MessageInput = ({ chatRoom }) => {
           <Pressable onPress={pickImage}>
             <Feather name="image" size={24} color="grey" style={styles.icon} />
           </Pressable>
-          <Feather name="camera" size={24} color="grey" style={styles.icon} />
+          <Pressable onPress={takePhoto}>
+            <Feather name="camera" size={24} color="grey" style={styles.icon} />
+          </Pressable>
           <MaterialCommunityIcons
             name="microphone"
             size={24}
