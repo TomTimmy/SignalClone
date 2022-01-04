@@ -1,7 +1,21 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform } from "react-native";
-import { SimpleLineIcons, Feather, MaterialCommunityIcons, AntDesign, Ionicons } from "@expo/vector-icons";
-import { DataStore } from "@aws-amplify/datastore";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import {
+  SimpleLineIcons,
+  Feather,
+  MaterialCommunityIcons,
+  AntDesign,
+  Ionicons,
+} from "@expo/vector-icons";
+import { DataStore, ImagePicker } from "@aws-amplify/datastore";
 import { Message, ChatRoom } from "../src/models";
 import Auth from "@aws-amplify/auth";
 import EmojiSelector from "react-native-emoji-selector";
@@ -27,7 +41,7 @@ const MessageInput = ({ chatRoom }) => {
   };
 
   const updateLastMessage = async (newMessage) => {
-    // ? Data in DataStore is NOT Mutable. 그래서 cpoyOf 쓰는 거임!
+    // ? Data in DataStore is NOT Mutable. 그래서 copyOf 쓰는 거임!
     DataStore.save(
       ChatRoom.copyOf(chatRoom, (updatedChatRoom) => {
         updatedChatRoom.LastMessage = newMessage;
@@ -43,6 +57,11 @@ const MessageInput = ({ chatRoom }) => {
     message ? sendMessage() : clickedWithoutMessages();
   };
 
+  //- Image picker
+  const pickImage = async () => {
+    let result = await ImagePicker.lau;
+  };
+
   return (
     // ? KeyboardAvoidingView 를 사용해야 키보드가 표출될떄 화면을 안 가린다.. 참조: https://reactnative.dev/docs/keyboardavoidingview
     <KeyboardAvoidingView
@@ -52,8 +71,17 @@ const MessageInput = ({ chatRoom }) => {
     >
       <View style={styles.row}>
         <View style={styles.inputContainer}>
-          <Pressable onPress={() => setIsEmojiPickerOpen((currentValue) => !currentValue)}>
-            <SimpleLineIcons name="emotsmile" size={24} color="grey" style={styles.icon} />
+          <Pressable
+            onPress={() =>
+              setIsEmojiPickerOpen((currentValue) => !currentValue)
+            }
+          >
+            <SimpleLineIcons
+              name="emotsmile"
+              size={24}
+              color="grey"
+              style={styles.icon}
+            />
           </Pressable>
 
           <TextInput
@@ -67,7 +95,12 @@ const MessageInput = ({ chatRoom }) => {
           />
 
           <Feather name="camera" size={24} color="grey" style={styles.icon} />
-          <MaterialCommunityIcons name="microphone" size={24} color="grey" style={styles.icon} />
+          <MaterialCommunityIcons
+            name="microphone"
+            size={24}
+            color="grey"
+            style={styles.icon}
+          />
         </View>
 
         {/* // ? Pressable 은 View 와 대치 가능하다. 오직, onPress 유무 차이만 있음! */}
@@ -80,14 +113,21 @@ const MessageInput = ({ chatRoom }) => {
           onPress={onPress}
         >
           {/* 메시지 보내기 버튼 */}
-          <Feather name="arrow-up" size={30} color={message ? "blue" : "grey"} style={styles.icon} />
+          <Feather
+            name="arrow-up"
+            size={30}
+            color={message ? "blue" : "grey"}
+            style={styles.icon}
+          />
         </Pressable>
       </View>
 
       {/* 이모지 셀렉터 패키지. */}
       {isEmojiPickerOpen && (
         <EmojiSelector
-          onEmojiSelected={(emoji) => setMessage((currentMessage) => currentMessage + emoji)}
+          onEmojiSelected={(emoji) =>
+            setMessage((currentMessage) => currentMessage + emoji)
+          }
           columns={8}
         />
       )}
