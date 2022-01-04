@@ -52,11 +52,11 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: true }}>
-      <Stack.Screen
+      {/* <Stack.Screen
         name="HomeScreen"
         component={HomeScreen}
         options={{ headerTitle: HomeHeader }}
-      />
+      /> */}
       <Stack.Screen
         name="ChatRoomScreen"
         component={ChatRoomScreen}

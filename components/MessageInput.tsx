@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   TextInput,
   Pressable,
@@ -15,14 +16,16 @@ import {
   AntDesign,
   Ionicons,
 } from "@expo/vector-icons";
-import { DataStore, ImagePicker } from "@aws-amplify/datastore";
+import { DataStore } from "@aws-amplify/datastore";
 import { Message, ChatRoom } from "../src/models";
 import Auth from "@aws-amplify/auth";
 import EmojiSelector from "react-native-emoji-selector";
+import * as ImagePicker from "expo-image-picker";
 
 const MessageInput = ({ chatRoom }) => {
   const [message, setMessage] = useState("");
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const [image, setImage] = useState(null);
 
   // ? 메시지 보내는 함수
   const sendMessage = async () => {
@@ -59,7 +62,19 @@ const MessageInput = ({ chatRoom }) => {
 
   //- Image picker
   const pickImage = async () => {
-    let result = await ImagePicker.lau;
+    // No permissions request is necessary for launching the image library | 이제 permission 안 필요한듯.
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
   };
 
   return (
@@ -69,6 +84,9 @@ const MessageInput = ({ chatRoom }) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={100}
     >
+      {image && (
+        <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />
+      )}
       <View style={styles.row}>
         <View style={styles.inputContainer}>
           <Pressable
@@ -94,6 +112,9 @@ const MessageInput = ({ chatRoom }) => {
             autoCapitalize="none"
           />
 
+          <Pressable onPress={pickImage}>
+            <Feather name="image" size={24} color="grey" style={styles.icon} />
+          </Pressable>
           <Feather name="camera" size={24} color="grey" style={styles.icon} />
           <MaterialCommunityIcons
             name="microphone"

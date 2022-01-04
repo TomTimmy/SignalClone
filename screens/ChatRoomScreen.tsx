@@ -83,9 +83,9 @@ const ChatRoomScreen = () => {
   // navigation.setOptions({ title: "헤더바 이름을 여기서도 바꿀 수 있다." });
 
   // ? chatRoom 이 null 이면...
-  if (!chatRoom) {
-    return <ActivityIndicator />;
-  }
+  // if (!chatRoom) {
+  //   return <ActivityIndicator />;
+  // }
 
   return (
     // ? View 대신 SafeAreaView 를 쓰면, 노치 같은 곳에 데이터가 표출되지 않는다. 굳!
